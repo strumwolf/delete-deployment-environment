@@ -1,6 +1,9 @@
 name: 'Delete Deployment Environment'
 description: 'Delete the entire environment and deployments for the branch the action is running on'
 author: "strumwolf"
+branding:
+  icon: briefcase
+  color: black
 inputs:
   token:
     description: GitHub access token
