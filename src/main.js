@@ -31,11 +31,6 @@ async function main() {
       environment,
     });
 
-    console.log(
-      'The following deployment Ids will be marked as inactive :',
-      deploymentIds,
-    );
-
     await Promise.all(
       deploymentIds.map(async (id) =>
         setDeploymentInactive(client, {
