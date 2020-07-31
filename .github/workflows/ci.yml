@@ -5,24 +5,28 @@ on:
 
 jobs:
   build:
-    - uses: actions/setup-node@v1
-      with:
-        node-version: 12.x
-    - uses: actions/checkout@v2
-    - name: npm ci
-      run: npm ci
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+      - uses: actions/checkout@v2
+      - name: npm ci
+        run: npm ci
   validate:
-    - uses: actions/checkout@v2
-    - name: create GitHub deployment
-      uses: chrnorm/deployment-action@releases/v1
-      id: deployment
-      with:
-        token: "${{ github.token }}"
-        environment: test
-        initial_status: success
-    - name: delete deployment
-      uses: ./
-      with:
-        token: ${{ github.token }}
-        environment: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: create GitHub deployment
+        uses: chrnorm/deployment-action@releases/v1
+        id: deployment
+        with:
+          token: "${{ github.token }}"
+          environment: test
+          initial_status: success
+      - name: delete deployment
+        uses: ./
+        with:
+          token: ${{ github.token }}
+          environment: test
     
