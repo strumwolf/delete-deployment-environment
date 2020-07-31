@@ -1,0 +1,38 @@
+{
+  "name": "delete-deployment-environment",
+  "version": "1.0.0",
+  "main": "src/main.js",
+  "repository": "https://github.com/strumwolf/delete-deployment-environment.git",
+  "author": "Brian Kurtz <lightsabre13@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "pack": "ncc build"
+  },
+  "dependencies": {
+    "@actions/core": "^1.2.4",
+    "@actions/github": "^4.0.0"
+  },
+  "devDependencies": {
+    "@twec/eslint-config": "^2.1.0",
+    "@zeit/ncc": "^0.22.3",
+    "eslint-config-xo-space": "^0.25.0",
+    "husky": "^4.2.5",
+    "lint-staged": "^10.2.11",
+    "prettier": "^2.0.5",
+    "yaml-lint": "^1.2.4"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "prettier --config .prettierrc --write"
+    ],
+    "*.*": [
+      "prettier --config .prettierrc --write"
+    ]
+  }
+}

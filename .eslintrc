@@ -1,0 +1,18 @@
+{
+  "extends": [
+    "eslint:recommended",
+    "xo-space/esnext",
+    "@twec/eslint-config",
+    "prettier"
+  ],
+  "env": {
+    "node": true
+  },
+  "ignorePatterns": ["dist/*"],
+  "rules": {
+    "new-cap": 0,
+    "no-template-curly-in-string": 1,
+    "capitalized-comments": 0,
+    "no-console": 0
+  }
+}
