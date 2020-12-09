@@ -26,7 +26,7 @@ on:
     delete:
       runs-on: ubuntu-latest
       steps:
-        - uses: strumwolf/delete-deployment-environment@releases/v1
+        - uses: strumwolf/delete-deployment-environment@1.1.0
           with:
             token: ${{ github.token }}
             environment: my-environment-name
