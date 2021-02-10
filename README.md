@@ -15,19 +15,19 @@ It will first find and mark all deployments as `inactive` and then delete all de
 The example below will be triggered on a delete event
 
 ```yaml
-Name: Delete Deployments
+name: Delete Deployments
 
 on:
   delete:
     branches-ignore:
       - main
 
-  jobs:
-    delete:
-      runs-on: ubuntu-latest
-      steps:
-        - uses: strumwolf/delete-deployment-environment@1.1.0
-          with:
-            token: ${{ github.token }}
-            environment: my-environment-name
+jobs:
+  delete:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: strumwolf/delete-deployment-environment@v1.1.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          environment: my-environment-name
 ```
