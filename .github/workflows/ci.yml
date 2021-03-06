@@ -29,7 +29,7 @@ jobs:
           environment: test
           initial_status: success
       - name: delete deployment
-        uses: ./
+        uses: ./dist/main.js
         with:
           token: ${{ github.token }}
           environment: test
