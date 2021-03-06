@@ -1,12 +1,15 @@
 {
-  "extends": [
-    "eslint:recommended",
-    "xo-space/esnext",
-    "@twec/eslint-config",
-    "prettier"
-  ],
+  "plugins": ["@typescript-eslint"],
+  "extends": ["plugin:github/typescript", "plugin:prettier/recommended"],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 9,
+    "sourceType": "module",
+    "project": "./tsconfig.eslint.json"
+  },
   "env": {
-    "node": true
+    "node": true,
+    "es6": true
   },
   "ignorePatterns": ["dist/*"],
   "rules": {

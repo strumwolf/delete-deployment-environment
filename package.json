@@ -1,24 +1,34 @@
 {
   "name": "delete-deployment-environment",
-  "version": "1.1.0",
+  "version": "2.1.0",
   "main": "src/main.js",
   "repository": "https://github.com/strumwolf/delete-deployment-environment.git",
   "author": "Brian Kurtz <lightsabre13@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "pack": "ncc build"
+    "build": "tsc",
+    "test": "ava --verbose",
+    "lint": "eslint src/*.ts"
   },
   "dependencies": {
     "@actions/core": "^1.2.6",
     "@actions/github": "^4.0.0"
   },
   "devDependencies": {
-    "@twec/eslint-config": "^2.1.0",
-    "@zeit/ncc": "^0.22.3",
-    "eslint-config-xo-space": "^0.25.0",
+    "@octokit/core": "^3.2.5",
+    "@octokit/types": "^6.10.1",
+    "@typescript-eslint/parser": "^4.16.1",
+    "ava": "^3.15.0",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^8.1.0",
+    "eslint-config-standard-with-typescript": "^20.0.0",
+    "eslint-plugin-github": "^4.1.2",
+    "eslint-plugin-prettier": "^3.3.1",
     "husky": "^4.2.5",
     "lint-staged": "^10.2.11",
-    "prettier": "^2.0.5",
+    "prettier": "2.2.1",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.2",
     "yaml-lint": "^1.2.4"
   },
   "husky": {
@@ -27,12 +37,20 @@
     }
   },
   "lint-staged": {
-    "*.js": [
+    "*.ts": [
       "eslint --fix",
       "prettier --config .prettierrc --write"
     ],
     "*.*": [
       "prettier --config .prettierrc --write"
+    ]
+  },
+  "ava": {
+    "extensions": [
+      "ts"
+    ],
+    "require": [
+      "ts-node/register"
     ]
   }
 }
