@@ -17,6 +17,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: npm install
+        run: npm i
       - name: lint
         run: npm run lint
       - name: run tests
@@ -29,7 +31,7 @@ jobs:
           environment: test
           initial_status: success
       - name: delete deployment
-        uses: ./dist/main.js
+        uses: ./
         with:
           token: ${{ github.token }}
           environment: test
