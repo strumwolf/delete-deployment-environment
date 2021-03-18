@@ -3,12 +3,12 @@
     "esModuleInterop": true,
     "module": "commonjs",
     "strict": true,
-    "declaration": true,
+    "declaration": false,
     "target": "es6",
     "sourceMap": true,
     "lib": ["es6"],
-    "outDir": "./dist" /* Redirect output structure to the directory. */,
-    "rootDir": "./src" /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */
+    "outDir": "dist" /* Redirect output structure to the directory. */
+    /* "rootDir": "src"  Specify the root directory of input files. Use to control the output directory structure with --outDir. */
   },
-  "exclude": ["node_modules", "**/*.test.ts"]
+  "exclude": ["node_modules", "__tests__/*.test.ts"]
 }

@@ -10,10 +10,6 @@ const test = anyTest as TestInterface<{
   repo: { owner: string; repo: string };
 }>;
 
-interface response {
-  id: number;
-}
-
 interface Context {
   owner: string;
   repo: string;
@@ -41,23 +37,31 @@ async function createDeploymentWithStatus(
   environment: string,
   { owner, repo, ref = 'main' }: Context,
 ): Promise<void> {
-  const createdDeployment = await octokit.request(
-    'POST /repos/{owner}/{repo}/deployments',
+  await octokit.request('POST /repos/{owner}/{repo}/deployments', {
+    owner,
+    repo,
+    ref,
+    environment,
+  });
+  const { data } = await octokit.request(
+    'GET /repos/{owner}/{repo}/deployments',
     {
       owner,
       repo,
-      ref,
       environment,
     },
   );
-  const data = createdDeployment.data;
+  const deploymentIds: number[] = data.map((deployment) => deployment.id);
+  // const { data } = createdDeployment;
+  console.log(deploymentIds);
+  const [id] = deploymentIds;
   await octokit.request(
     'POST /repos/{owner}/{repo}/deployments/{deployment_id}/statuses',
     {
       owner: owner,
       repo: repo,
       state: 'success',
-      deployment_id: data['id'],
+      deployment_id: id,
     },
   );
 }
@@ -85,6 +89,9 @@ test.beforeEach(async (t) => {
   github.context.ref = process.env.GITHUB_REF;
   const { GITHUB_TOKEN = '' } = process.env;
   const { repo, ref } = github.context;
+  // const octokit: Octokit = github.getOctokit(GITHUB_TOKEN, {
+  //   previews: ['ant-man'],
+  // });
   const octokit = new Octokit({
     auth: GITHUB_TOKEN,
   });
