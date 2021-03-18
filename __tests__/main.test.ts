@@ -29,7 +29,6 @@ async function createEnvironment(
       environment_name: environmentName,
     },
   );
-  console.log('env created');
 }
 
 async function createDeploymentWithStatus(
@@ -42,6 +41,7 @@ async function createDeploymentWithStatus(
     repo,
     ref,
     environment,
+    required_contexts: [],
   });
   const { data } = await octokit.request(
     'GET /repos/{owner}/{repo}/deployments',
@@ -51,10 +51,8 @@ async function createDeploymentWithStatus(
       environment,
     },
   );
-  const deploymentIds: number[] = data.map((deployment) => deployment.id);
-  // const { data } = createdDeployment;
-  console.log(deploymentIds);
-  const [id] = deploymentIds;
+  const [deployment] = data;
+  const { id } = deployment;
   await octokit.request(
     'POST /repos/{owner}/{repo}/deployments/{deployment_id}/statuses',
     {
@@ -105,11 +103,18 @@ test.beforeEach(async (t) => {
 });
 
 test.serial('should successfully remove environment', async (t) => {
+  t.timeout(60000);
   const { octokit, repo, ref } = t.context;
   const context: Context = repo;
   const environment = 'test-full-env-removal';
-  await createEnvironment(octokit, environment, context);
-  await createDeploymentWithStatus(octokit, environment, { ...context, ref });
+  try {
+    await createEnvironment(octokit, environment, context);
+    await createDeploymentWithStatus(octokit, environment, { ...context, ref });
+  } catch (err) {
+    t.log(err);
+    t.fail();
+  }
+
   process.env.INPUT_ENVIRONMENT = environment;
   await main();
   let environmentExists = true;
