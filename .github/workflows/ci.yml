@@ -24,8 +24,6 @@ jobs:
         run: npm i
       - name: lint
         run: npm run lint
-      - name: run tests
-        run: npm test
       - name: create GitHub deployment
         uses: chrnorm/deployment-action@releases/v1
         id: deployment
