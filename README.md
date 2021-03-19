@@ -11,6 +11,8 @@ If you want to keep deployments but inactivate all deployments, add `onlyDeactiv
 Note if you pass `onlyDeactivateDeployments: true` and `onlyRemoveDeployments: true`, `onlyRemoveDeployments` will override
 `onlyDeactivateDeployments` and all deployments will be removed.
 
+Also note that if you are planning on deleting a created environment, your `GITHUB_TOKEN` must have permissions with repo scope. The token provided by the workflow, `github.token` does not have the permissions to delete created environments. [delete environment](https://docs.github.com/en/rest/reference/repos#delete-an-environment)
+
 ## Inputs
 
 | name                        | description                                                                           |
