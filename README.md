@@ -15,16 +15,21 @@ Also note that if you are planning on deleting a created environment, your `GITH
 
 ## Inputs
 
-| name                        | description                                                                           |
-| --------------------------- | ------------------------------------------------------------------------------------- |
-| `token`                     | GitHub token                                                                          |
-| `environment`               | The Name of the environment to delete                                                 |
-| `onlyRemoveDeployments`     | Delete deployments and not the environment. Default false                             |
-| `onlyDeactivateDeployments` | Deactivate the deployments but don't remove deployments or environment. Default false |
+| name                        | description                                                                             |
+| --------------------------- | --------------------------------------------------------------------------------------- |
+| `token`                     | GitHub token like `${{ github.token }}` or `${{ secrets.GITHUB_TOKEN }}`                |
+| `environment`               | The Name of the environment to delete                                                   |
+| `onlyRemoveDeployments`     | Delete deployments and not the environment. Default `false`                             |
+| `onlyDeactivateDeployments` | Deactivate the deployments but don't remove deployments or environment. Default `false` |
 
 ## Usage
 
-The example below will be triggered on a delete event
+### Deactives and removes deployment environment (also from settings)
+The example below will be triggered on a delete event.
+
+- ✔️ Deactivates deployment
+- ✔️ Removes from deployments tab
+- ✔️ Removes from environment tab in settings
 
 ```yaml
 name: Delete Environment (default settings)
@@ -40,9 +45,17 @@ jobs:
     steps:
       - uses: strumwolf/delete-deployment-environment@v2
         with:
+          # ⚠️ The provided token needs permission for admin write:org
           token: ${{ secrets.GITHUB_TOKEN }}
           environment: my-environment-name
 ```
+
+### Deactivates and removes deployment environment 
+The example below will be triggered on a delete event. 
+
+- ✔️ Deactivates deployment
+- ✔️ Removes from deployments tab
+- ❌ Removes from environment tab in settings
 
 ```yaml
 name: Delete Deployments
@@ -62,6 +75,13 @@ jobs:
           environment: my-environment-name
           onlyRemoveDeployments: true
 ```
+
+### Deactivates deployment environment
+The example below will be triggered on a delete event. 
+
+- ✔️ Deactivates deployment
+- ❌ Removes from deployments tab
+- ❌ Removes from environment tab in settings
 
 ```yaml
 name: Set deployements to inactive
