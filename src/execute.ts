@@ -19,6 +19,10 @@ interface Context {
   repo: string;
 }
 
+interface DeploymentRef extends Context {
+  ref: string;
+}
+
 async function listDeploymentIds(
   client: Octokit,
   { owner, repo, environment }: ListDeploymentIDs,
@@ -62,6 +66,17 @@ async function deleteDeploymentById(
       deployment_id: deploymentId,
     },
   );
+}
+
+async function deleteDeploymentByRef(
+  client: Octokit,
+  { owner, repo, ref }: DeploymentRef,
+): Promise<void> {
+  await client.request('DELETE /repos/{owner}/{repo}/deployments?ref={ref}', {
+    owner,
+    repo,
+    ref,
+  });
 }
 
 async function deleteTheEnvironment(
@@ -116,6 +131,7 @@ export async function main(): Promise<void> {
       required: false,
     },
   );
+  const ref: string = core.getInput('ref', { required: false });
   const client: Octokit = github.getOctokit(token, { previews: ['ant-man'] });
 
   if (onlyDeactivateDeployments === 'true') {
@@ -138,12 +154,23 @@ export async function main(): Promise<void> {
     );
 
     if (deleteDeployment) {
-      core.info(`deleting deployments in environment ${environment}`);
-      await Promise.all(
-        deploymentIds.map((deploymentId) =>
-          deleteDeploymentById(client, { ...context.repo, deploymentId }),
-        ),
-      );
+      if (ref) {
+        core.info(`deleting ref ${ref} from environment ${environment}`);
+        await deleteDeploymentByRef(client, {
+          ...context.repo,
+          ref,
+        });
+      } else {
+        core.info(`deleting deployments in environment ${environment}`);
+        await Promise.all(
+          deploymentIds.map((deploymentId) =>
+            deleteDeploymentById(client, {
+              ...context.repo,
+              deploymentId,
+            }),
+          ),
+        );
+      }
     }
 
     if (deleteEnvironment) {
