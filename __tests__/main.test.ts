@@ -1,7 +1,7 @@
 import anyTest, { TestInterface } from 'ava';
 import * as github from '@actions/github';
 import { Octokit } from '@octokit/core';
-import { main } from '../src/execute';
+import { DeploymentRef, main } from '../src/execute';
 
 const test = anyTest as TestInterface<{
   token: string;
@@ -68,7 +68,7 @@ async function getDeployments(
   octokit: Octokit,
   environment: string,
   { owner, repo }: Context,
-): Promise<number[]> {
+): Promise<DeploymentRef[]> {
   const { data } = await octokit.request(
     'GET /repos/{owner}/{repo}/deployments',
     {
@@ -77,8 +77,11 @@ async function getDeployments(
       environment,
     },
   );
-  const deploymentIds: number[] = data.map((deployment) => deployment.id);
-  return deploymentIds;
+  const deploymentRefs: DeploymentRef[] = data.map((deployment) => ({
+    deploymentId: deployment.id,
+    ref: deployment.ref,
+  }));
+  return deploymentRefs;
 }
 
 test.beforeEach(async (t) => {
@@ -158,8 +161,8 @@ test.serial(
       environmentExists = err.status === 404 ? false : true;
     }
     t.falsy(environmentExists);
-    const deploymentsId = await getDeployments(octokit, environment, context);
-    t.is(deploymentsId.length, 0);
+    const deployments = await getDeployments(octokit, environment, context);
+    t.is(deployments.length, 0);
   },
 );
 
@@ -190,8 +193,58 @@ test.serial(
       t.fail();
     }
     t.truthy(environmentExists);
-    const deploymentsId = await getDeployments(octokit, environment, context);
-    t.is(deploymentsId.length, 0);
+    const deployments = await getDeployments(octokit, environment, context);
+    t.is(deployments.length, 0);
+    // delete all artifacts
+    delete process.env.INPUT_ONLYREMOVEDEPLOYMENTS;
+    await main();
+  },
+);
+
+test.serial(
+  'should successfully remove deployment ref only and not remove environment',
+  async (t) => {
+    const environment = 'test-remove-deployment-ref-only';
+    const { octokit, repo, ref } = t.context;
+    const context: Context = repo;
+    await createEnvironment(octokit, environment, context);
+    await createDeploymentWithStatus(octokit, environment, {
+      ...context,
+      ref,
+    });
+    // make sure this branch exists to create another deployment
+    const newRef = 'delete-by-ref';
+    await createDeploymentWithStatus(octokit, environment, {
+      ...context,
+      ref: newRef,
+    });
+    process.env.INPUT_ENVIRONMENT = environment;
+    process.env.INPUT_REF = newRef;
+    process.env.INPUT_ONLYREMOVEDEPLOYMENTS = 'true';
+    await main();
+    let environmentExists = false;
+    let deployments: DeploymentRef[] = [];
+    try {
+      const res = await octokit.request(
+        'GET /repos/{owner}/{repo}/environments/{environment_name}',
+        {
+          owner: repo.owner,
+          repo: repo.repo,
+          environment_name: environment,
+        },
+      );
+      environmentExists = res.status === 200;
+      deployments = await getDeployments(octokit, environment, context);
+    } catch (err) {
+      t.log(err);
+      t.fail();
+    }
+    t.truthy(environmentExists);
+    t.is(deployments.length, 1);
+    t.is(deployments[0].ref, 'main');
+    // clean up main
+    process.env.INPUT_REF = 'main';
+    await main();
     // delete all artifacts
     delete process.env.INPUT_ONLYREMOVEDEPLOYMENTS;
     await main();
