@@ -139,7 +139,7 @@ export async function main(): Promise<void> {
       ...context.repo,
       environment,
     });
-
+    core.info(`Found ${deploymentRefs.length} deployments`);
     let deploymentIds: number[];
     let deleteDeploymentMessage: string;
     if (ref) {
@@ -153,8 +153,6 @@ export async function main(): Promise<void> {
         (deployment) => deployment.deploymentId,
       );
     }
-
-    core.info(`Found ${deploymentRefs.length} deployments`);
     core.info(`deactivating deployments in environment ${environment}`);
     await Promise.all(
       deploymentIds.map((deploymentId) =>
@@ -166,10 +164,7 @@ export async function main(): Promise<void> {
       core.info(deleteDeploymentMessage);
       await Promise.all(
         deploymentIds.map((deploymentId) =>
-          deleteDeploymentById(client, {
-            ...context.repo,
-            deploymentId,
-          }),
+          deleteDeploymentById(client, { ...context.repo, deploymentId }),
         ),
       );
     }

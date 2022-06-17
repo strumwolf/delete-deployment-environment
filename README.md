@@ -8,7 +8,7 @@ If you want to only delete deployments and the not environment, add `onlyRemoveD
 
 If you want to keep deployments but inactivate all deployments, add `onlyDeactivateDeployments: true`
 
-If you want to only delete the deployments ref and not all deployments of a given environment, add `ref: my-branch`
+If you want to only delete a deployment ref and not all deployments of a given environment, add `ref: my-branch`
 
 Note if you pass `onlyDeactivateDeployments: true` and `onlyRemoveDeployments: true`, `onlyRemoveDeployments` will override
 `onlyDeactivateDeployments` and all deployments will be removed.
@@ -81,13 +81,13 @@ jobs:
           onlyRemoveDeployments: true
 ```
 
-### Deactivates and removes deployment ref of a given environment
+### Deactivates and removes a deployment ref of a given environment
 
 The example below will be triggered on a delete event.
 
 - ✔️ Deactivates deployment
 - ✔️ Removes from deployments tab
-- ✔️ Removes deployments ref
+- ✔️ Removes only a deployment ref
 - ❌ Removes from environment tab in settings
 
 ```yaml
