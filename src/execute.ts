@@ -19,14 +19,15 @@ interface Context {
   repo: string;
 }
 
-interface DeploymentRef extends Context {
+export interface DeploymentRef {
+  deploymentId: number;
   ref: string;
 }
 
-async function listDeploymentIds(
+async function listDeployments(
   client: Octokit,
   { owner, repo, environment }: ListDeploymentIDs,
-): Promise<number[]> {
+): Promise<DeploymentRef[]> {
   const { data } = await client.request(
     'GET /repos/{owner}/{repo}/deployments',
     {
@@ -35,8 +36,12 @@ async function listDeploymentIds(
       environment,
     },
   );
-  const deploymentIds: number[] = data.map((deployment) => deployment.id);
-  return deploymentIds;
+  const deploymentRefs: DeploymentRef[] = data.map((deployment) => ({
+    deploymentId: deployment.id,
+    ref: deployment.ref,
+  }));
+
+  return deploymentRefs;
 }
 
 async function setDeploymentInactive(
@@ -66,17 +71,6 @@ async function deleteDeploymentById(
       deployment_id: deploymentId,
     },
   );
-}
-
-async function deleteDeploymentByRef(
-  client: Octokit,
-  { owner, repo, ref }: DeploymentRef,
-): Promise<void> {
-  await client.request('DELETE /repos/{owner}/{repo}/deployments?ref={ref}', {
-    owner,
-    repo,
-    ref,
-  });
 }
 
 async function deleteTheEnvironment(
@@ -141,11 +135,26 @@ export async function main(): Promise<void> {
     deleteEnvironment = false;
   }
   try {
-    const deploymentIds = await listDeploymentIds(client, {
+    const deploymentRefs = await listDeployments(client, {
       ...context.repo,
       environment,
     });
-    core.info(`Found ${deploymentIds.length} deployments`);
+
+    let deploymentIds: number[];
+    let deleteDeploymentMessage: string;
+    if (ref) {
+      deleteDeploymentMessage = `deleting deployment ref ${ref} in environment ${environment}`;
+      deploymentIds = deploymentRefs
+        .filter((deployment) => deployment.ref === ref)
+        .map((deployment) => deployment.deploymentId);
+    } else {
+      deleteDeploymentMessage = `deleting deployments in environment ${environment}`;
+      deploymentIds = deploymentRefs.map(
+        (deployment) => deployment.deploymentId,
+      );
+    }
+
+    core.info(`Found ${deploymentRefs.length} deployments`);
     core.info(`deactivating deployments in environment ${environment}`);
     await Promise.all(
       deploymentIds.map((deploymentId) =>
@@ -154,23 +163,15 @@ export async function main(): Promise<void> {
     );
 
     if (deleteDeployment) {
-      if (ref) {
-        core.info(`deleting ref ${ref} from environment ${environment}`);
-        await deleteDeploymentByRef(client, {
-          ...context.repo,
-          ref,
-        });
-      } else {
-        core.info(`deleting deployments in environment ${environment}`);
-        await Promise.all(
-          deploymentIds.map((deploymentId) =>
-            deleteDeploymentById(client, {
-              ...context.repo,
-              deploymentId,
-            }),
-          ),
-        );
-      }
+      core.info(deleteDeploymentMessage);
+      await Promise.all(
+        deploymentIds.map((deploymentId) =>
+          deleteDeploymentById(client, {
+            ...context.repo,
+            deploymentId,
+          }),
+        ),
+      );
     }
 
     if (deleteEnvironment) {
