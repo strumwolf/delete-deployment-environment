@@ -213,7 +213,7 @@ test.serial(
       ref,
     });
     // make sure this branch exists to create another deployment
-    const newRef = 'delete-by-ref';
+    const newRef = 'release/v2';
     await createDeploymentWithStatus(octokit, environment, {
       ...context,
       ref: newRef,
