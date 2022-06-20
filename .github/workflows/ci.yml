@@ -4,11 +4,12 @@ on:
   [pull_request, push]
 
 env:
-  GITHUB_TOKEN: ${{ github.token }}
+  GITHUB_TOKEN: ${{ secrets.TOKEN }}
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions: write-all
     steps:
       - uses: actions/setup-node@v1
         with:
@@ -31,12 +32,12 @@ jobs:
         uses: chrnorm/deployment-action@releases/v1
         id: deployment
         with:
-          token: "${{ github.token }}"
+          token: "${{ env.GITHUB_TOKEN }}"
           environment: test
           initial_status: success
       - name: delete deployment
         uses: ./
         with:
-          token: ${{ github.token }}
+          token: ${{ env.GITHUB_TOKEN }}
           environment: test
     
