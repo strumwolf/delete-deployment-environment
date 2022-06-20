@@ -90,9 +90,6 @@ test.beforeEach(async (t) => {
   github.context.ref = process.env.GITHUB_REF;
   const { GITHUB_TOKEN = '' } = process.env;
   const { repo, ref } = github.context;
-  // const octokit: Octokit = github.getOctokit(GITHUB_TOKEN, {
-  //   previews: ['ant-man'],
-  // });
   const octokit = new Octokit({
     auth: GITHUB_TOKEN,
   });

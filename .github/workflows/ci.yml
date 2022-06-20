@@ -9,6 +9,7 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions: write-all
     steps:
       - uses: actions/setup-node@v1
         with:
@@ -19,6 +20,9 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
       - uses: actions/checkout@v2
       - name: npm install
         run: npm i
