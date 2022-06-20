@@ -8,6 +8,8 @@ If you want to only delete deployments and the not environment, add `onlyRemoveD
 
 If you want to keep deployments but inactivate all deployments, add `onlyDeactivateDeployments: true`
 
+If you want to only delete a deployment ref and not all deployments of a given environment, add `ref: my-branch`
+
 Note if you pass `onlyDeactivateDeployments: true` and `onlyRemoveDeployments: true`, `onlyRemoveDeployments` will override
 `onlyDeactivateDeployments` and all deployments will be removed.
 
@@ -15,16 +17,23 @@ Also note that if you are planning on deleting a created environment, your `GITH
 
 ## Inputs
 
-| name                        | description                                                                           |
-| --------------------------- | ------------------------------------------------------------------------------------- |
-| `token`                     | GitHub token                                                                          |
-| `environment`               | The Name of the environment to delete                                                 |
-| `onlyRemoveDeployments`     | Delete deployments and not the environment. Default false                             |
-| `onlyDeactivateDeployments` | Deactivate the deployments but don't remove deployments or environment. Default false |
+| name                        | description                                                                             |
+| --------------------------- | --------------------------------------------------------------------------------------- |
+| `token`                     | GitHub token like `${{ github.token }}` or `${{ secrets.GITHUB_TOKEN }}`                |
+| `environment`               | The Name of the environment to delete                                                   |
+| `onlyRemoveDeployments`     | Delete deployments and not the environment. Default `false`                             |
+| `onlyDeactivateDeployments` | Deactivate the deployments but don't remove deployments or environment. Default `false` |
+| `ref`                       | The name of the deployment ref to delete                                                |
 
 ## Usage
 
-The example below will be triggered on a delete event
+### Deactives and removes deployment environment (also from settings)
+
+The example below will be triggered on a delete event.
+
+- ✔️ Deactivates deployment
+- ✔️ Removes from deployments tab
+- ✔️ Removes from environment tab in settings
 
 ```yaml
 name: Delete Environment (default settings)
@@ -40,9 +49,18 @@ jobs:
     steps:
       - uses: strumwolf/delete-deployment-environment@v2
         with:
+          # ⚠️ The provided token needs permission for admin write:org
           token: ${{ secrets.GITHUB_TOKEN }}
           environment: my-environment-name
 ```
+
+### Deactivates and removes deployment environment
+
+The example below will be triggered on a delete event.
+
+- ✔️ Deactivates deployment
+- ✔️ Removes from deployments tab
+- ❌ Removes from environment tab in settings
 
 ```yaml
 name: Delete Deployments
@@ -62,6 +80,43 @@ jobs:
           environment: my-environment-name
           onlyRemoveDeployments: true
 ```
+
+### Deactivates and removes a deployment ref of a given environment
+
+The example below will be triggered on a delete event.
+
+- ✔️ Deactivates deployment
+- ✔️ Removes from deployments tab
+- ✔️ Removes only a deployment ref
+- ❌ Removes from environment tab in settings
+
+```yaml
+name: Delete Deployments Ref
+
+on:
+  delete:
+    branches-ignore:
+      - main
+
+jobs:
+  delete:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: strumwolf/delete-deployment-environment@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          environment: my-environment-name
+          ref: my-branch
+          onlyRemoveDeployments: true
+```
+
+### Deactivates deployment environment
+
+The example below will be triggered on a delete event.
+
+- ✔️ Deactivates deployment
+- ❌ Removes from deployments tab
+- ❌ Removes from environment tab in settings
 
 ```yaml
 name: Set deployements to inactive
