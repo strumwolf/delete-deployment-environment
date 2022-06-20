@@ -4,7 +4,7 @@ on:
   [pull_request, push]
 
 env:
-  GITHUB_TOKEN: ${{ github.token }}
+  GITHUB_TOKEN: ${{ secrets.TOKEN }}
 
 jobs:
   build:
@@ -32,12 +32,12 @@ jobs:
         uses: chrnorm/deployment-action@releases/v1
         id: deployment
         with:
-          token: "${{ github.token }}"
+          token: "${{ env.GITHUB_TOKEN }}"
           environment: test
           initial_status: success
       - name: delete deployment
         uses: ./
         with:
-          token: ${{ github.token }}
+          token: ${{ env.GITHUB_TOKEN }}
           environment: test
     
