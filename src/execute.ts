@@ -150,18 +150,21 @@ export async function main(): Promise<void> {
     core.info(`Found ${deploymentRefs.length} deployments`);
     let deploymentIds: number[];
     let deleteDeploymentMessage: string;
+    let deactivateDeploymentMessage: string;
     if (ref) {
       deleteDeploymentMessage = `deleting deployment ref ${ref} in environment ${environment}`;
+      deactivateDeploymentMessage = `deactivating deployment ref ${ref} in environment ${environment}`;
       deploymentIds = deploymentRefs
         .filter((deployment) => deployment.ref === ref)
         .map((deployment) => deployment.deploymentId);
     } else {
-      deleteDeploymentMessage = `deleting deployments in environment ${environment}`;
+      deleteDeploymentMessage = `deleting all ${deploymentRefs.length} deployments in environment ${environment}`;
+      deactivateDeploymentMessage = `deleting deployment ref ${ref} in environment ${environment}`;
       deploymentIds = deploymentRefs.map(
         (deployment) => deployment.deploymentId,
       );
     }
-    core.info(`deactivating deployments in environment ${environment}`);
+    core.info(deactivateDeploymentMessage);
     await Promise.all(
       deploymentIds.map((deploymentId) =>
         setDeploymentInactive(client, { ...context.repo, deploymentId }),
