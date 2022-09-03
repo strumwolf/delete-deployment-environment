@@ -47,7 +47,7 @@ jobs:
   delete:
     runs-on: ubuntu-latest
     steps:
-      - uses: strumwolf/delete-deployment-environment@v2
+      - uses: strumwolf/delete-deployment-environment@v2.2.0
         with:
           # ⚠️ The provided token needs permission for admin write:org
           token: ${{ secrets.GITHUB_TOKEN }}
