@@ -11,6 +11,9 @@ inputs:
   environment:
     description: Environment to be deleted
     required: true
+  ref:
+    description: The `head_ref` or source branch name of the deployment to delete
+    required: false
   onlyRemoveDeployments:
     description: Only remove deployments, keep the environment. Defaults to false
     required: false

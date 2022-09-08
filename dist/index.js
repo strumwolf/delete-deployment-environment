@@ -954,17 +954,20 @@ function main() {
             core.info(`Found ${deploymentRefs.length} deployments`);
             let deploymentIds;
             let deleteDeploymentMessage;
+            let deactivateDeploymentMessage;
             if (ref) {
                 deleteDeploymentMessage = `deleting deployment ref ${ref} in environment ${environment}`;
+                deactivateDeploymentMessage = `deactivating deployment ref ${ref} in environment ${environment}`;
                 deploymentIds = deploymentRefs
                     .filter((deployment) => deployment.ref === ref)
                     .map((deployment) => deployment.deploymentId);
             }
             else {
-                deleteDeploymentMessage = `deleting deployments in environment ${environment}`;
+                deleteDeploymentMessage = `deleting all ${deploymentRefs.length} deployments in environment ${environment}`;
+                deactivateDeploymentMessage = `deleting deployment ref ${ref} in environment ${environment}`;
                 deploymentIds = deploymentRefs.map((deployment) => deployment.deploymentId);
             }
-            core.info(`deactivating deployments in environment ${environment}`);
+            core.info(deactivateDeploymentMessage);
             yield Promise.all(deploymentIds.map((deploymentId) => setDeploymentInactive(client, Object.assign(Object.assign({}, context.repo), { deploymentId }))));
             if (deleteDeployment) {
                 core.info(deleteDeploymentMessage);
