@@ -162,7 +162,7 @@ export async function main(): Promise<void> {
         .map((deployment) => deployment.deploymentId);
     } else {
       deleteDeploymentMessage = `deleting all ${deploymentRefs.length} deployments in environment ${environment}`;
-      deactivateDeploymentMessage = `deleting deployment ref ${ref} in environment ${environment}`;
+      deactivateDeploymentMessage = `deactivating all ${deploymentRefs.length} deployments in environment ${environment}`;
       deploymentIds = deploymentRefs.map(
         (deployment) => deployment.deploymentId,
       );
