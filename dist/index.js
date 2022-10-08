@@ -966,7 +966,7 @@ function main() {
             }
             else {
                 deleteDeploymentMessage = `deleting all ${deploymentRefs.length} deployments in environment ${environment}`;
-                deactivateDeploymentMessage = `deleting deployment ref ${ref} in environment ${environment}`;
+                deactivateDeploymentMessage = `deactivating all ${deploymentRefs.length} deployments in environment ${environment}`;
                 deploymentIds = deploymentRefs.map((deployment) => deployment.deploymentId);
             }
             core.info(deactivateDeploymentMessage);
