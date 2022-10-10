@@ -154,7 +154,7 @@ export async function main(): Promise<void> {
     let deploymentIds: number[];
     let deleteDeploymentMessage: string;
     let deactivateDeploymentMessage: string;
-    if (ref) {
+    if (ref.length > 0) {
       deleteDeploymentMessage = `deleting deployment ref ${ref} in environment ${environment}`;
       deactivateDeploymentMessage = `deactivating deployment ref ${ref} in environment ${environment}`;
       deploymentIds = deploymentRefs
