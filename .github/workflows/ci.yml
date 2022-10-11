@@ -11,31 +11,43 @@ jobs:
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
-      - uses: actions/setup-node@v3
+      - name: Setup Node
+        uses: actions/setup-node@v3
         with:
           node-version: 16.x
-      - uses: actions/checkout@v3
-      - name: npm ci
+
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      
+      - name: Install Dependencies
         run: npm ci
+
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-node@v3
+      - name: Setup Node
+        uses: actions/setup-node@v3
         with:
           node-version: 16.x
-      - uses: actions/checkout@v3
-      - name: npm install
+
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Install Dependencies
         run: npm i
-      - name: lint
+
+      - name: Lint
         run: npm run lint
-      - name: create GitHub deployment
+
+      - name: Create GitHub Deployment
         uses: chrnorm/deployment-action@v2
         id: deployment
         with:
           token: "${{ env.GITHUB_TOKEN }}"
           environment: test
           initial_status: success
-      - name: delete deployment
+
+      - name: Delete Deployment
         uses: ./
         with:
           token: ${{ env.GITHUB_TOKEN }}
