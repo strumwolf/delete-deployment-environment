@@ -1,6 +1,6 @@
 {
   "name": "delete-deployment-environment",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "main": "lib/main.js",
   "repository": "https://github.com/strumwolf/delete-deployment-environment.git",
   "author": "Brian Kurtz <lightsabre13@gmail.com>",
