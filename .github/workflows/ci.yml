@@ -6,11 +6,10 @@ on:
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-permissions: write-all
-
 jobs:
   validate:
     runs-on: ubuntu-latest
+    permissions: write-all
     steps:
       - name: Setup Node
         uses: actions/setup-node@v3
