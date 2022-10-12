@@ -1,9 +1,9 @@
-import anyTest, { TestInterface } from 'ava';
+import anyTest, { TestFn } from 'ava';
 import * as github from '@actions/github';
 import { Octokit } from '@octokit/core';
 import { DeploymentRef, main } from '../src/execute';
 
-const test = anyTest as TestInterface<{
+const test = anyTest as TestFn<{
   token: string;
   ref: string;
   octokit: Octokit;

@@ -1,6 +1,7 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { Octokit } from '@octokit/core';
+import { RequestError } from '@octokit/request-error';
 
 interface ListDeploymentIDs {
   owner: string;
@@ -98,7 +99,7 @@ async function deleteTheEnvironment(
     );
     existingEnv = typeof getEnvResult === 'object';
   } catch (err) {
-    if (err.status !== 404) {
+    if ((err as RequestError).status !== 404) {
       core.error('Error deleting environment');
       throw err;
     }
@@ -185,6 +186,6 @@ export async function main(): Promise<void> {
     }
     core.info('done');
   } catch (error) {
-    core.setFailed(error.message);
+    core.setFailed((error as RequestError).message);
   }
 }
