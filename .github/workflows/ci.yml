@@ -45,7 +45,7 @@ jobs:
         with:
           token: "${{ env.GITHUB_TOKEN }}"
           environment: test
-          initial_status: success
+          initial-status: success
 
       - name: Delete Deployment
         uses: ./
