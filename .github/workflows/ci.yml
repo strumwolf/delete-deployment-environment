@@ -46,7 +46,7 @@ jobs:
         uses: chrnorm/deployment-action@v2
         id: deployment
         with:
-          token: "${{ env.GITHUB_TOKEN }}"
+          token: ${{ env.GITHUB_TOKEN }}
           environment: test
           initial-status: success
 
