@@ -12,15 +12,15 @@ jobs:
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
-      - name: Setup Node
+      - name: Setup node
         uses: actions/setup-node@v3
         with:
           node-version: 16.x
 
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Install Dependencies
+      - name: Install dependencies
         run: npm ci
 
       - name: Lint
@@ -29,7 +29,7 @@ jobs:
       - name: Test
         run: npm run test
 
-      - name: Create GitHub Deployment
+      - name: Create GitHub deployment
         uses: chrnorm/deployment-action@v2
         id: deployment
         with:
@@ -37,7 +37,7 @@ jobs:
           environment: test
           initial-status: success
 
-      - name: Delete Deployment
+      - name: Delete GitHub deployment
         uses: ./
         with:
           token: ${{ env.GITHUB_TOKEN }}
