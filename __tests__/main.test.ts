@@ -86,7 +86,9 @@ async function getDeployments(
 }
 
 test.beforeEach((t) => {
-  process.env.GITHUB_REPOSITORY = 'jhanke00/delete-deployment-environment';
+  process.env.GITHUB_REPOSITORY = `${
+    process.env.OWNER || 'strumwolf'
+  }/delete-deployment-environment`;
   process.env.GITHUB_REF = 'main';
   github.context.ref = process.env.GITHUB_REF;
   const { GITHUB_TOKEN = '' } = process.env;

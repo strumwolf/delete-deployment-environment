@@ -5,6 +5,7 @@ on:
 
 env:
   GITHUB_TOKEN: ${{ secrets.TOKEN }}
+  OWNER: ${{ github.repository_owner }}
 
 jobs:
   validate:
