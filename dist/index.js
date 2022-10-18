@@ -862,12 +862,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.main = void 0;
 const core = __importStar(__webpack_require__(470));
 const github = __importStar(__webpack_require__(469));
-function listDeployments(client, { owner, repo, environment }, page = 0) {
+function listDeployments(client, { owner, repo, environment, ref = '' }, page = 0) {
     return __awaiter(this, void 0, void 0, function* () {
         const { data } = yield client.request('GET /repos/{owner}/{repo}/deployments', {
             owner,
             repo,
             environment,
+            ref,
             per_page: 100,
             page,
         });
@@ -876,7 +877,7 @@ function listDeployments(client, { owner, repo, environment }, page = 0) {
             ref: deployment.ref,
         }));
         if (deploymentRefs.length === 100)
-            return deploymentRefs.concat(yield listDeployments(client, { owner, repo, environment }, page++));
+            return deploymentRefs.concat(yield listDeployments(client, { owner, repo, environment, ref }, page++));
         return deploymentRefs;
     });
 }
@@ -950,12 +951,13 @@ function main() {
             deleteEnvironment = false;
         }
         try {
-            const deploymentRefs = yield listDeployments(client, Object.assign(Object.assign({}, context.repo), { environment }));
+            const deploymentRefs = yield listDeployments(client, Object.assign(Object.assign({}, context.repo), { environment,
+                ref }));
             core.info(`Found ${deploymentRefs.length} deployments`);
             let deploymentIds;
             let deleteDeploymentMessage;
             let deactivateDeploymentMessage;
-            if (ref) {
+            if (ref.length > 0) {
                 deleteDeploymentMessage = `deleting deployment ref ${ref} in environment ${environment}`;
                 deactivateDeploymentMessage = `deactivating deployment ref ${ref} in environment ${environment}`;
                 deploymentIds = deploymentRefs
@@ -964,7 +966,7 @@ function main() {
             }
             else {
                 deleteDeploymentMessage = `deleting all ${deploymentRefs.length} deployments in environment ${environment}`;
-                deactivateDeploymentMessage = `deleting deployment ref ${ref} in environment ${environment}`;
+                deactivateDeploymentMessage = `deactivating all ${deploymentRefs.length} deployments in environment ${environment}`;
                 deploymentIds = deploymentRefs.map((deployment) => deployment.deploymentId);
             }
             core.info(deactivateDeploymentMessage);
