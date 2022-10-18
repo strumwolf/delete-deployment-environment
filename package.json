@@ -20,7 +20,7 @@
     "@octokit/types": "^6.10.1",
     "@typescript-eslint/parser": "^4.16.1",
     "@zeit/ncc": "^0.22.3",
-    "ava": "^3.15.0",
+    "ava": "^4.3.3",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^8.1.0",
     "eslint-config-standard-with-typescript": "^20.0.0",
