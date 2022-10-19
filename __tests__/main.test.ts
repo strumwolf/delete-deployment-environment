@@ -1,9 +1,10 @@
-import anyTest, { TestInterface } from 'ava';
+import anyTest, { TestFn } from 'ava';
 import * as github from '@actions/github';
 import { Octokit } from '@octokit/core';
 import { DeploymentRef, main } from '../src/execute';
+import { RequestError } from '@octokit/request-error';
 
-const test = anyTest as TestInterface<{
+const test = anyTest as TestFn<{
   token: string;
   ref: string;
   octokit: Octokit;
@@ -84,8 +85,11 @@ async function getDeployments(
   return deploymentRefs;
 }
 
-test.beforeEach(async (t) => {
-  process.env.GITHUB_REPOSITORY = 'strumwolf/delete-deployment-environment';
+test.beforeEach((t) => {
+  process.env.GITHUB_REPOSITORY = `${
+    // set owner to enable test on forked repositories
+    process.env.OWNER || 'strumwolf'
+  }/delete-deployment-environment`;
   process.env.GITHUB_REF = 'main';
   github.context.ref = process.env.GITHUB_REF;
   const { GITHUB_TOKEN = '' } = process.env;
@@ -129,7 +133,7 @@ test.serial('should successfully remove environment', async (t) => {
     );
   } catch (err) {
     // status 404 indicates that the environment cannot be found in the repo
-    environmentExists = err.status === 404 ? false : true;
+    environmentExists = (err as RequestError).status === 404 ? false : true;
   }
   t.falsy(environmentExists);
 });
@@ -155,7 +159,7 @@ test.serial(
       );
     } catch (err) {
       // status 404 indicates that the environment cannot be found in the repo
-      environmentExists = err.status === 404 ? false : true;
+      environmentExists = (err as RequestError).status === 404 ? false : true;
     }
     t.falsy(environmentExists);
     const deployments = await getDeployments(octokit, environment, context);

@@ -1,9 +1,13 @@
 {
   "plugins": ["@typescript-eslint"],
-  "extends": ["plugin:github/typescript", "plugin:prettier/recommended"],
+  "extends": [
+    "plugin:github/typescript",
+    "plugin:prettier/recommended",
+    "plugin:escompat/recommended"
+  ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "ecmaVersion": 9,
+    "ecmaVersion": 2020,
     "sourceType": "module",
     "project": "./tsconfig.eslint.json"
   },
