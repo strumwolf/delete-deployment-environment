@@ -1,11 +1,13 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { Octokit } from '@octokit/core';
+import { RequestError } from '@octokit/request-error';
 
 interface ListDeploymentIDs {
   owner: string;
   repo: string;
   environment: string;
+  ref: string;
 }
 
 interface Deployment {
@@ -26,7 +28,7 @@ export interface DeploymentRef {
 
 async function listDeployments(
   client: Octokit,
-  { owner, repo, environment }: ListDeploymentIDs,
+  { owner, repo, environment, ref = '' }: ListDeploymentIDs,
   page = 0,
 ): Promise<DeploymentRef[]> {
   const { data } = await client.request(
@@ -35,6 +37,7 @@ async function listDeployments(
       owner,
       repo,
       environment,
+      ref,
       per_page: 100,
       page,
     },
@@ -46,7 +49,7 @@ async function listDeployments(
 
   if (deploymentRefs.length === 100)
     return deploymentRefs.concat(
-      await listDeployments(client, { owner, repo, environment }, page++),
+      await listDeployments(client, { owner, repo, environment, ref }, page++),
     );
 
   return deploymentRefs;
@@ -98,7 +101,7 @@ async function deleteTheEnvironment(
     );
     existingEnv = typeof getEnvResult === 'object';
   } catch (err) {
-    if (err.status !== 404) {
+    if ((err as RequestError).status !== 404) {
       core.error('Error deleting environment');
       throw err;
     }
@@ -146,12 +149,13 @@ export async function main(): Promise<void> {
     const deploymentRefs = await listDeployments(client, {
       ...context.repo,
       environment,
+      ref,
     });
     core.info(`Found ${deploymentRefs.length} deployments`);
     let deploymentIds: number[];
     let deleteDeploymentMessage: string;
     let deactivateDeploymentMessage: string;
-    if (ref) {
+    if (ref.length > 0) {
       deleteDeploymentMessage = `deleting deployment ref ${ref} in environment ${environment}`;
       deactivateDeploymentMessage = `deactivating deployment ref ${ref} in environment ${environment}`;
       deploymentIds = deploymentRefs
@@ -159,7 +163,7 @@ export async function main(): Promise<void> {
         .map((deployment) => deployment.deploymentId);
     } else {
       deleteDeploymentMessage = `deleting all ${deploymentRefs.length} deployments in environment ${environment}`;
-      deactivateDeploymentMessage = `deleting deployment ref ${ref} in environment ${environment}`;
+      deactivateDeploymentMessage = `deactivating all ${deploymentRefs.length} deployments in environment ${environment}`;
       deploymentIds = deploymentRefs.map(
         (deployment) => deployment.deploymentId,
       );
@@ -185,6 +189,6 @@ export async function main(): Promise<void> {
     }
     core.info('done');
   } catch (error) {
-    core.setFailed(error.message);
+    core.setFailed((error as RequestError).message);
   }
 }
