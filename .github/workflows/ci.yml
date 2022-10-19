@@ -5,37 +5,39 @@ on:
 
 env:
   GITHUB_TOKEN: ${{ secrets.TOKEN }}
+  OWNER: ${{ github.repository_owner }}
 
 jobs:
-  build:
+  validate:
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
-      - uses: actions/setup-node@v1
+      - name: Setup node
+        uses: actions/setup-node@v3
         with:
-          node-version: 12.x
-      - uses: actions/checkout@v2
-      - name: npm ci
+          node-version: 16.x
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
         run: npm ci
-  validate:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/setup-node@v1
-        with:
-          node-version: 12.x
-      - uses: actions/checkout@v2
-      - name: npm install
-        run: npm i
-      - name: lint
+
+      - name: Lint
         run: npm run lint
-      - name: create GitHub deployment
-        uses: chrnorm/deployment-action@releases/v1
+
+      - name: Test
+        run: npm run test
+
+      - name: Create GitHub deployment
+        uses: chrnorm/deployment-action@v2
         id: deployment
         with:
-          token: "${{ env.GITHUB_TOKEN }}"
+          token: ${{ env.GITHUB_TOKEN }}
           environment: test
-          initial_status: success
-      - name: delete deployment
+          initial-status: success
+
+      - name: Delete GitHub deployment
         uses: ./
         with:
           token: ${{ env.GITHUB_TOKEN }}
