@@ -31,6 +31,7 @@ async function listDeployments(
   { owner, repo, environment, ref = '' }: ListDeploymentIDs,
   page = 0,
 ): Promise<DeploymentRef[]> {
+  core.debug(`Getting list of deployments in environment ${environment}`);
   const { data } = await client.request(
     'GET /repos/{owner}/{repo}/deployments',
     {
@@ -46,6 +47,7 @@ async function listDeployments(
     deploymentId: deployment.id,
     ref: deployment.ref,
   }));
+  core.debug(`Getting total of ${deploymentRefs.length} deployments`);
 
   if (deploymentRefs.length === 100)
     return deploymentRefs.concat(
@@ -137,6 +139,7 @@ export async function main(): Promise<void> {
     },
   );
   const ref: string = core.getInput('ref', { required: false });
+  core.debug(`Starting Deployment Deletion action`);
   const client: Octokit = github.getOctokit(token, { previews: ['ant-man'] });
 
   if (onlyDeactivateDeployments === 'true') {
@@ -145,6 +148,7 @@ export async function main(): Promise<void> {
   } else if (onlyRemoveDeployments === 'true') {
     deleteEnvironment = false;
   }
+  core.debug(`Try to list deployments`);
   try {
     const deploymentRefs = await listDeployments(client, {
       ...context.repo,
