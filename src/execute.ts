@@ -56,7 +56,11 @@ async function listDeployments(
 
   if (deploymentRefs.length === 100)
     return deploymentRefs.concat(
-      await listDeployments(client, { owner, repo, environment, ref }, page++),
+      await listDeployments(
+        client,
+        { owner, repo, environment, ref },
+        page + 1,
+      ),
     );
 
   return deploymentRefs;

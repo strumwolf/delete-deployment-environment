@@ -60,7 +60,7 @@ function listDeployments(client, { owner, repo, environment, ref = '' }, page = 
         }));
         core.debug(`Getting total of ${converter.toWords(deploymentRefs.length)} deployments page ${page} `);
         if (deploymentRefs.length === 100)
-            return deploymentRefs.concat(yield listDeployments(client, { owner, repo, environment, ref }, page++));
+            return deploymentRefs.concat(yield listDeployments(client, { owner, repo, environment, ref }, page + 1));
         return deploymentRefs;
     });
 }
