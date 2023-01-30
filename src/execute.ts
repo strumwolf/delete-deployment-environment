@@ -146,7 +146,31 @@ export async function main(): Promise<void> {
   );
   const ref: string = core.getInput('ref', { required: false });
   core.debug(`Starting Deployment Deletion action`);
-  const client: Octokit = github.getOctokit(token, { previews: ['ant-man'] });
+  const client: Octokit = github.getOctokit(token, {
+    throttle: {
+      onRateLimit: (retryAfter = 0, options: any) => {
+        console.warn(
+          `Request quota exhausted for request ${options.method} ${options.url}`,
+        );
+        if (options.request.retryCount === 0) {
+          // only retries once
+          console.log(`Retrying after ${retryAfter} seconds!`);
+          return true;
+        }
+      },
+      onAbuseLimit: (retryAfter = 0, options: any) => {
+        console.warn(
+          `Abuse detected for request ${options.method} ${options.url}`,
+        );
+        if (options.request.retryCount === 0) {
+          // only retries once
+          console.log(`Retrying after ${retryAfter} seconds!`);
+          return true;
+        }
+      },
+    },
+    previews: ['ant-man'],
+  });
 
   if (onlyDeactivateDeployments === 'true') {
     deleteDeployment = false;
