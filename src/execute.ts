@@ -49,7 +49,9 @@ async function listDeployments(
     ref: deployment.ref,
   }));
   core.debug(
-    `Getting total of ${converter.toWords(deploymentRefs.length)} deployments`,
+    `Getting total of ${converter.toWords(
+      deploymentRefs.length,
+    )} deployments page ${page} `,
   );
 
   if (deploymentRefs.length === 100)
