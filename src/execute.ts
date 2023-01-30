@@ -2,7 +2,6 @@ import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { Octokit } from '@octokit/core';
 import { RequestError } from '@octokit/request-error';
-import * as converter from 'number-to-words';
 
 interface ListDeploymentIDs {
   owner: string;
@@ -49,9 +48,7 @@ async function listDeployments(
     ref: deployment.ref,
   }));
   core.debug(
-    `Getting total of ${converter.toWords(
-      deploymentRefs.length,
-    )} deployments page ${page} `,
+    `Getting total of ${deploymentRefs.length} deployments on page ${page} `,
   );
 
   if (deploymentRefs.length === 100)
