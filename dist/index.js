@@ -136,11 +136,15 @@ function main() {
                     }
                 },
                 onAbuseLimit: (retryAfter = 0, options) => {
-                    // does not retry, only logs a warning
                     console.warn(`Abuse detected for request ${options.method} ${options.url}`);
+                    if (options.request.retryCount === 0) {
+                        // only retries once
+                        console.log(`Retrying after ${retryAfter} seconds!`);
+                        return true;
+                    }
                 },
             },
-            previews: ['ant-man']
+            previews: ['ant-man'],
         });
         if (onlyDeactivateDeployments === 'true') {
             deleteDeployment = false;
