@@ -6,255 +6,191 @@
 
 "use strict";
 
-var __createBinding =
-  (this && this.__createBinding) ||
-  (Object.create
-    ? function (o, m, k, k2) {
-        if (k2 === undefined) k2 = k;
-        var desc = Object.getOwnPropertyDescriptor(m, k);
-        if (
-          !desc ||
-          ('get' in desc ? !m.__esModule : desc.writable || desc.configurable)
-        ) {
-          desc = {
-            enumerable: true,
-            get: function () {
-              return m[k];
-            },
-          };
-        }
-        Object.defineProperty(o, k2, desc);
-      }
-    : function (o, m, k, k2) {
-        if (k2 === undefined) k2 = k;
-        o[k2] = m[k];
-      });
-var __setModuleDefault =
-  (this && this.__setModuleDefault) ||
-  (Object.create
-    ? function (o, v) {
-        Object.defineProperty(o, 'default', { enumerable: true, value: v });
-      }
-    : function (o, v) {
-        o['default'] = v;
-      });
-var __importStar =
-  (this && this.__importStar) ||
-  function (mod) {
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null)
-      for (var k in mod)
-        if (k !== 'default' && Object.prototype.hasOwnProperty.call(mod, k))
-          __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
-  };
-var __awaiter =
-  (this && this.__awaiter) ||
-  function (thisArg, _arguments, P, generator) {
-    function adopt(value) {
-      return value instanceof P
-        ? value
-        : new P(function (resolve) {
-            resolve(value);
-          });
-    }
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
-      function fulfilled(value) {
-        try {
-          step(generator.next(value));
-        } catch (e) {
-          reject(e);
-        }
-      }
-      function rejected(value) {
-        try {
-          step(generator['throw'](value));
-        } catch (e) {
-          reject(e);
-        }
-      }
-      function step(result) {
-        result.done
-          ? resolve(result.value)
-          : adopt(result.value).then(fulfilled, rejected);
-      }
-      step((generator = generator.apply(thisArg, _arguments || [])).next());
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
-  };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.main = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
-function listDeployments(
-  client,
-  { owner, repo, environment, ref = '' },
-  page = 0,
-) {
-  return __awaiter(this, void 0, void 0, function* () {
-    const { data } = yield client.request(
-      'GET /repos/{owner}/{repo}/deployments',
-      {
-        owner,
-        repo,
-        environment,
-        ref,
-        per_page: 100,
-        page,
-      },
-    );
-    const deploymentRefs = data.map((deployment) => ({
-      deploymentId: deployment.id,
-      ref: deployment.ref,
-    }));
-    if (deploymentRefs.length === 100)
-      return deploymentRefs.concat(
-        yield listDeployments(
-          client,
-          { owner, repo, environment, ref },
-          page++,
-        ),
-      );
-    return deploymentRefs;
-  });
+function listDeployments(client, { owner, repo, environment, ref = '' }, page = 0) {
+    return __awaiter(this, void 0, void 0, function* () {
+        core.debug(`Getting list of deployments in environment ${environment}`);
+        const { data } = yield client.request('GET /repos/{owner}/{repo}/deployments', {
+            owner,
+            repo,
+            environment,
+            ref,
+            per_page: 100,
+            page,
+        });
+        const deploymentRefs = data.map((deployment) => ({
+            deploymentId: deployment.id,
+            ref: deployment.ref,
+        }));
+        core.debug(`Getting total of ${deploymentRefs.length} deployments on page ${page} `);
+        if (deploymentRefs.length === 100)
+            return deploymentRefs.concat(yield listDeployments(client, { owner, repo, environment, ref }, page + 1));
+        return deploymentRefs;
+    });
 }
 function setDeploymentInactive(client, { owner, repo, deploymentId }) {
-  return __awaiter(this, void 0, void 0, function* () {
-    yield client.request(
-      'POST /repos/{owner}/{repo}/deployments/{deployment_id}/statuses',
-      {
-        owner,
-        repo,
-        deployment_id: deploymentId,
-        state: 'inactive',
-      },
-    );
-  });
+    return __awaiter(this, void 0, void 0, function* () {
+        yield client.request('POST /repos/{owner}/{repo}/deployments/{deployment_id}/statuses', {
+            owner,
+            repo,
+            deployment_id: deploymentId,
+            state: 'inactive',
+        });
+    });
 }
 function deleteDeploymentById(client, { owner, repo, deploymentId }) {
-  return __awaiter(this, void 0, void 0, function* () {
-    yield client.request(
-      'DELETE /repos/{owner}/{repo}/deployments/{deployment_id}',
-      {
-        owner,
-        repo,
-        deployment_id: deploymentId,
-      },
-    );
-  });
+    return __awaiter(this, void 0, void 0, function* () {
+        yield client.request('DELETE /repos/{owner}/{repo}/deployments/{deployment_id}', {
+            owner,
+            repo,
+            deployment_id: deploymentId,
+        });
+    });
 }
 function deleteTheEnvironment(client, environment, { owner, repo }) {
-  return __awaiter(this, void 0, void 0, function* () {
-    let existingEnv = false;
-    try {
-      const getEnvResult = yield client.request(
-        'GET /repos/{owner}/{repo}/environments/{environment_name}',
-        {
-          owner,
-          repo,
-          environment_name: environment,
-        },
-      );
-      existingEnv = typeof getEnvResult === 'object';
-    } catch (err) {
-      if (err.status !== 404) {
-        core.error('Error deleting environment');
-        throw err;
-      }
-    }
-    if (existingEnv) {
-      core.info(`deleting environment ${environment}`);
-      yield client.request(
-        'DELETE /repos/{owner}/{repo}/environments/{environment_name}',
-        {
-          owner,
-          repo,
-          environment_name: environment,
-        },
-      );
-      core.info(`environment ${environment} deleted`);
-    }
-  });
+    return __awaiter(this, void 0, void 0, function* () {
+        let existingEnv = false;
+        try {
+            const getEnvResult = yield client.request('GET /repos/{owner}/{repo}/environments/{environment_name}', {
+                owner,
+                repo,
+                environment_name: environment,
+            });
+            existingEnv = typeof getEnvResult === 'object';
+        }
+        catch (err) {
+            if (err.status !== 404) {
+                core.error('Error deleting environment');
+                throw err;
+            }
+        }
+        if (existingEnv) {
+            core.info(`deleting environment ${environment}`);
+            yield client.request('DELETE /repos/{owner}/{repo}/environments/{environment_name}', {
+                owner,
+                repo,
+                environment_name: environment,
+            });
+            core.info(`environment ${environment} deleted`);
+        }
+    });
 }
 function main() {
-  return __awaiter(this, void 0, void 0, function* () {
-    let deleteDeployment = true;
-    let deleteEnvironment = true;
-    const { context } = github;
-    const token = core.getInput('token', { required: true });
-    const environment = core.getInput('environment', { required: true });
-    const onlyRemoveDeployments = core.getInput('onlyRemoveDeployments', {
-      required: false,
+    return __awaiter(this, void 0, void 0, function* () {
+        let deleteDeployment = true;
+        let deleteEnvironment = true;
+        const { context } = github;
+        const token = core.getInput('token', { required: true });
+        const environment = core.getInput('environment', { required: true });
+        const onlyRemoveDeployments = core.getInput('onlyRemoveDeployments', {
+            required: false,
+        });
+        const onlyDeactivateDeployments = core.getInput('onlyDeactivateDeployments', {
+            required: false,
+        });
+        const ref = core.getInput('ref', { required: false });
+        core.debug(`Starting Deployment Deletion action`);
+        const client = github.getOctokit(token, {
+            throttle: {
+                onRateLimit: (retryAfter = 0, options) => {
+                    console.warn(`Request quota exhausted for request ${options.method} ${options.url}`);
+                    if (options.request.retryCount === 0) {
+                        // only retries once
+                        console.log(`Retrying after ${retryAfter} seconds!`);
+                        return true;
+                    }
+                },
+                onAbuseLimit: (retryAfter = 0, options) => {
+                    console.warn(`Abuse detected for request ${options.method} ${options.url}`);
+                    if (options.request.retryCount === 0) {
+                        // only retries once
+                        console.log(`Retrying after ${retryAfter} seconds!`);
+                        return true;
+                    }
+                },
+            },
+            previews: ['ant-man'],
+        });
+        if (onlyDeactivateDeployments === 'true') {
+            deleteDeployment = false;
+            deleteEnvironment = false;
+        }
+        else if (onlyRemoveDeployments === 'true') {
+            deleteEnvironment = false;
+        }
+        core.debug(`Try to list deployments`);
+        try {
+            const deploymentRefs = yield listDeployments(client, Object.assign(Object.assign({}, context.repo), { environment,
+                ref }));
+            core.info(`Found ${deploymentRefs.length} deployments`);
+            let deploymentIds;
+            let deleteDeploymentMessage;
+            let deactivateDeploymentMessage;
+            if (ref.length > 0) {
+                deleteDeploymentMessage = `deleting deployment ref ${ref} in environment ${environment}`;
+                deactivateDeploymentMessage = `deactivating deployment ref ${ref} in environment ${environment}`;
+                deploymentIds = deploymentRefs
+                    .filter((deployment) => deployment.ref === ref)
+                    .map((deployment) => deployment.deploymentId);
+            }
+            else {
+                deleteDeploymentMessage = `deleting all ${deploymentRefs.length} deployments in environment ${environment}`;
+                deactivateDeploymentMessage = `deactivating all ${deploymentRefs.length} deployments in environment ${environment}`;
+                deploymentIds = deploymentRefs.map((deployment) => deployment.deploymentId);
+            }
+            core.info(deactivateDeploymentMessage);
+            yield Promise.all(deploymentIds.map((deploymentId) => setDeploymentInactive(client, Object.assign(Object.assign({}, context.repo), { deploymentId }))));
+            if (deleteDeployment) {
+                core.info(deleteDeploymentMessage);
+                yield Promise.all(deploymentIds.map((deploymentId) => deleteDeploymentById(client, Object.assign(Object.assign({}, context.repo), { deploymentId }))));
+            }
+            if (deleteEnvironment) {
+                yield deleteTheEnvironment(client, environment, context.repo);
+            }
+            core.info('done');
+        }
+        catch (error) {
+            core.setFailed(error.message);
+        }
     });
-    const onlyDeactivateDeployments = core.getInput(
-      'onlyDeactivateDeployments',
-      {
-        required: false,
-      },
-    );
-    const ref = core.getInput('ref', { required: false });
-    const client = github.getOctokit(token, { previews: ['ant-man'] });
-    if (onlyDeactivateDeployments === 'true') {
-      deleteDeployment = false;
-      deleteEnvironment = false;
-    } else if (onlyRemoveDeployments === 'true') {
-      deleteEnvironment = false;
-    }
-    try {
-      const deploymentRefs = yield listDeployments(
-        client,
-        Object.assign(Object.assign({}, context.repo), { environment, ref }),
-      );
-      core.info(`Found ${deploymentRefs.length} deployments`);
-      let deploymentIds;
-      let deleteDeploymentMessage;
-      let deactivateDeploymentMessage;
-      if (ref.length > 0) {
-        deleteDeploymentMessage = `deleting deployment ref ${ref} in environment ${environment}`;
-        deactivateDeploymentMessage = `deactivating deployment ref ${ref} in environment ${environment}`;
-        deploymentIds = deploymentRefs
-          .filter((deployment) => deployment.ref === ref)
-          .map((deployment) => deployment.deploymentId);
-      } else {
-        deleteDeploymentMessage = `deleting all ${deploymentRefs.length} deployments in environment ${environment}`;
-        deactivateDeploymentMessage = `deactivating all ${deploymentRefs.length} deployments in environment ${environment}`;
-        deploymentIds = deploymentRefs.map(
-          (deployment) => deployment.deploymentId,
-        );
-      }
-      core.info(deactivateDeploymentMessage);
-      yield Promise.all(
-        deploymentIds.map((deploymentId) =>
-          setDeploymentInactive(
-            client,
-            Object.assign(Object.assign({}, context.repo), { deploymentId }),
-          ),
-        ),
-      );
-      if (deleteDeployment) {
-        core.info(deleteDeploymentMessage);
-        yield Promise.all(
-          deploymentIds.map((deploymentId) =>
-            deleteDeploymentById(
-              client,
-              Object.assign(Object.assign({}, context.repo), { deploymentId }),
-            ),
-          ),
-        );
-      }
-      if (deleteEnvironment) {
-        yield deleteTheEnvironment(client, environment, context.repo);
-      }
-      core.info('done');
-    } catch (error) {
-      core.setFailed(error.message);
-    }
-  });
 }
 exports.main = main;
 //# sourceMappingURL=execute.js.map
-
 
 /***/ }),
 
@@ -6280,6 +6216,20 @@ const isDomainOrSubdomain = function isDomainOrSubdomain(destination, original) 
 };
 
 /**
+ * isSameProtocol reports whether the two provided URLs use the same protocol.
+ *
+ * Both domains must already be in canonical form.
+ * @param {string|URL} original
+ * @param {string|URL} destination
+ */
+const isSameProtocol = function isSameProtocol(destination, original) {
+	const orig = new URL$1(original).protocol;
+	const dest = new URL$1(destination).protocol;
+
+	return orig === dest;
+};
+
+/**
  * Fetch function
  *
  * @param   Mixed    url   Absolute url or Request instance
@@ -6310,7 +6260,7 @@ function fetch(url, opts) {
 			let error = new AbortError('The user aborted a request.');
 			reject(error);
 			if (request.body && request.body instanceof Stream.Readable) {
-				request.body.destroy(error);
+				destroyStream(request.body, error);
 			}
 			if (!response || !response.body) return;
 			response.body.emit('error', error);
@@ -6351,8 +6301,40 @@ function fetch(url, opts) {
 
 		req.on('error', function (err) {
 			reject(new FetchError(`request to ${request.url} failed, reason: ${err.message}`, 'system', err));
+
+			if (response && response.body) {
+				destroyStream(response.body, err);
+			}
+
 			finalize();
 		});
+
+		fixResponseChunkedTransferBadEnding(req, function (err) {
+			if (signal && signal.aborted) {
+				return;
+			}
+
+			destroyStream(response.body, err);
+		});
+
+		/* c8 ignore next 18 */
+		if (parseInt(process.version.substring(1)) < 14) {
+			// Before Node.js 14, pipeline() does not fully support async iterators and does not always
+			// properly handle when the socket close/end events are out of order.
+			req.on('socket', function (s) {
+				s.addListener('close', function (hadError) {
+					// if a data listener is still present we didn't end cleanly
+					const hasDataListener = s.listenerCount('data') > 0;
+
+					// if end happened before close but the socket didn't emit an error, do it now
+					if (response && hasDataListener && !hadError && !(signal && signal.aborted)) {
+						const err = new Error('Premature close');
+						err.code = 'ERR_STREAM_PREMATURE_CLOSE';
+						response.body.emit('error', err);
+					}
+				});
+			});
+		}
 
 		req.on('response', function (res) {
 			clearTimeout(reqTimeout);
@@ -6425,7 +6407,7 @@ function fetch(url, opts) {
 							size: request.size
 						};
 
-						if (!isDomainOrSubdomain(request.url, locationURL)) {
+						if (!isDomainOrSubdomain(request.url, locationURL) || !isSameProtocol(request.url, locationURL)) {
 							for (const name of ['authorization', 'www-authenticate', 'cookie', 'cookie2']) {
 								requestOpts.headers.delete(name);
 							}
@@ -6518,6 +6500,13 @@ function fetch(url, opts) {
 					response = new Response(body, response_options);
 					resolve(response);
 				});
+				raw.on('end', function () {
+					// some old IIS servers return zero-length OK deflate responses, so 'data' is never emitted.
+					if (!response) {
+						response = new Response(body, response_options);
+						resolve(response);
+					}
+				});
 				return;
 			}
 
@@ -6537,6 +6526,41 @@ function fetch(url, opts) {
 		writeToStream(req, request);
 	});
 }
+function fixResponseChunkedTransferBadEnding(request, errorCallback) {
+	let socket;
+
+	request.on('socket', function (s) {
+		socket = s;
+	});
+
+	request.on('response', function (response) {
+		const headers = response.headers;
+
+		if (headers['transfer-encoding'] === 'chunked' && !headers['content-length']) {
+			response.once('close', function (hadError) {
+				// if a data listener is still present we didn't end cleanly
+				const hasDataListener = socket.listenerCount('data') > 0;
+
+				if (hasDataListener && !hadError) {
+					const err = new Error('Premature close');
+					err.code = 'ERR_STREAM_PREMATURE_CLOSE';
+					errorCallback(err);
+				}
+			});
+		}
+	});
+}
+
+function destroyStream(stream, err) {
+	if (stream.destroy) {
+		stream.destroy(err);
+	} else {
+		// node < 8
+		stream.emit('error', err);
+		stream.end();
+	}
+}
+
 /**
  * Redirect code matching
  *
@@ -9948,7 +9972,6 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const execute_1 = __nccwpck_require__(3532);
 (0, execute_1.main)();
 //# sourceMappingURL=main.js.map
-
 })();
 
 module.exports = __webpack_exports__;
