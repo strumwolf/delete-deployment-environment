@@ -1,6 +1,6 @@
 {
   "name": "delete-deployment-environment",
-  "version": "2.2.3",
+  "version": "2.3.0",
   "main": "lib/main.js",
   "repository": "https://github.com/strumwolf/delete-deployment-environment.git",
   "author": "Brian Kurtz <lightsabre13@gmail.com>",
@@ -19,6 +19,7 @@
     "@octokit/core": "^4.0.5",
     "@octokit/request-error": "^3.0.1",
     "@octokit/types": "^7.5.1",
+    "@types/node": "^20.2.5",
     "@typescript-eslint/parser": "^5.40.0",
     "@vercel/ncc": "^0.34.0",
     "ava": "^4.3.3",
