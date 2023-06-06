@@ -31,6 +31,7 @@ async function listDeployments(
   { owner, repo, environment, ref = '' }: ListDeploymentIDs,
   page = 0,
 ): Promise<DeploymentRef[]> {
+  core.debug(`Getting list of deployments in environment ${environment}`);
   const { data } = await client.request(
     'GET /repos/{owner}/{repo}/deployments',
     {
@@ -46,10 +47,17 @@ async function listDeployments(
     deploymentId: deployment.id,
     ref: deployment.ref,
   }));
+  core.debug(
+    `Getting total of ${deploymentRefs.length} deployments on page ${page} `,
+  );
 
   if (deploymentRefs.length === 100)
     return deploymentRefs.concat(
-      await listDeployments(client, { owner, repo, environment, ref }, page++),
+      await listDeployments(
+        client,
+        { owner, repo, environment, ref },
+        page + 1,
+      ),
     );
 
   return deploymentRefs;
@@ -137,7 +145,32 @@ export async function main(): Promise<void> {
     },
   );
   const ref: string = core.getInput('ref', { required: false });
-  const client: Octokit = github.getOctokit(token, { previews: ['ant-man'] });
+  core.debug(`Starting Deployment Deletion action`);
+  const client: Octokit = github.getOctokit(token, {
+    throttle: {
+      onRateLimit: (retryAfter = 0, options: any) => {
+        console.warn(
+          `Request quota exhausted for request ${options.method} ${options.url}`,
+        );
+        if (options.request.retryCount === 0) {
+          // only retries once
+          console.log(`Retrying after ${retryAfter} seconds!`);
+          return true;
+        }
+      },
+      onAbuseLimit: (retryAfter = 0, options: any) => {
+        console.warn(
+          `Abuse detected for request ${options.method} ${options.url}`,
+        );
+        if (options.request.retryCount === 0) {
+          // only retries once
+          console.log(`Retrying after ${retryAfter} seconds!`);
+          return true;
+        }
+      },
+    },
+    previews: ['ant-man'],
+  });
 
   if (onlyDeactivateDeployments === 'true') {
     deleteDeployment = false;
@@ -145,6 +178,7 @@ export async function main(): Promise<void> {
   } else if (onlyRemoveDeployments === 'true') {
     deleteEnvironment = false;
   }
+  core.debug(`Try to list deployments`);
   try {
     const deploymentRefs = await listDeployments(client, {
       ...context.repo,
