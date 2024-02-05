@@ -9,7 +9,7 @@
     "lib": ["es6"],
     "outDir": "lib",
     "rootDir": "src",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
   },
-  "exclude": ["node_modules", "__tests__/*.test.ts"]
+  "exclude": ["node_modules", "__tests__/*.test.ts"],
 }
