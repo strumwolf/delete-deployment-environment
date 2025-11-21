@@ -23,11 +23,19 @@ For certain operations _(like deleting an environment)_, your GitHub Action will
 
 In this case, a [GitHub App](https://docs.github.com/en/developers/apps/getting-started-with-apps/about-apps) can be created to assume the required permissions, and ultimately your own Actions will use a [Private Key](https://docs.github.com/en/developers/apps/building-github-apps/authenticating-with-github-apps#generating-a-private-key) to later exchange for a JWT token, which this Action can use to execute operations.
 
+The required permissions for your GitHub App depend on the options you pass to this action.
+ - With the default options:
+    1. `Deployments`: Read & Write
+    2. `Environments`: Read & Write
+ - With the `onlyRemoveDeployments` option enabled:
+    1. `Deployments`: Read & Write
+
 1. [Create a GitHub app](https://docs.github.com/en/developers/apps/building-github-apps/creating-a-github-app).
 2. [Generate a Private Key](https://docs.github.com/en/developers/apps/building-github-apps/authenticating-with-github-apps#generating-a-private-key)
 3. Add your GitHub App's "App ID" to your repo's [Actions Secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets) _(ex: `GH_APP_ID`)_
 4. Add your Private Key to your repo's [Actions Secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets) _(ex: `GH_APP_PRIVATE_KEY`)_
 5. Use [navikt/github-app-token-generator](https://github.com/navikt/github-app-token-generator) before using this action to generate a JWT
+6. Ensure your GitHub App has these permissions; **Deployments**: write, **Environments**: write
 
    #### Example
 
@@ -53,7 +61,7 @@ In this case, a [GitHub App](https://docs.github.com/en/developers/apps/getting-
 
          # Points to a recent commit instead of `main` to avoid supply chain attacks. (The latest tag is very old.)
          - name: 🎟 Get GitHub App token
-           uses: navikt/github-app-token-generator@a3831f44404199df32d8f39f7c0ad9bb8fa18b1c
+           uses: actions/create-github-app-token@a0de6af83968303c8c955486bf9739a57d23c7f1
            id: get-token
            with:
              app-id: ${{ secrets.GH_APP_ID }}
