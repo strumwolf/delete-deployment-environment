@@ -1,7 +1,7 @@
-import anyTest, { TestFn } from 'ava';
+import anyTest, { type TestFn } from 'ava';
 import * as github from '@actions/github';
 import { Octokit } from '@octokit/core';
-import { DeploymentRef, main } from '../src/execute';
+import { type DeploymentRef, main } from '../src/execute.ts';
 import { RequestError } from '@octokit/request-error';
 
 const test = anyTest as TestFn<{
