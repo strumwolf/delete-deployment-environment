@@ -1,7 +1,7 @@
 {
   "plugins": ["@typescript-eslint"],
   "extends": [
-    "plugin:github/typescript",
+    "plugin:@typescript-eslint/recommended",
     "plugin:prettier/recommended",
     "plugin:escompat/recommended"
   ],

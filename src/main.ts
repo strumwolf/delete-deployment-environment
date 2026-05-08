@@ -1,3 +1,3 @@
-import { main } from './execute';
+import { main } from './execute.js';
 
 main();
